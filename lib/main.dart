@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
@@ -33,17 +34,68 @@ class Ball extends StatefulWidget {
 
 class _BallState extends State<Ball> {
   int ballNumber = 1;
+  int _start = 10;
+  Timer _timer;
+
+  void startTimer(){
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(oneSec,(Timer timer) => setState(
+      (){
+        if (_start < 1) {
+          timer.cancel();
+        } else {
+          _start = _start - 1;
+        }
+      }
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: FlatButton(
-        onPressed: () {
-          setState(() {
-            ballNumber = Random().nextInt(5) + 1;
-            print('Ball got clicked.');
-          });
-        },
-        child: Image.asset('images/ball$ballNumber.png'),
+      child: Column(
+        children: <Widget>[
+          FlatButton(
+            onPressed: () {
+              setState(() {
+                ballNumber = Random().nextInt(5) + 1;
+                print('Ball got clicked.');
+              });
+            },
+            child: Image.asset('images/ball$ballNumber.png'),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              '$_start',
+              style: TextStyle(
+                fontSize: 50.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          RaisedButton(
+            onPressed: (){
+              print('start button pressed.');
+              startTimer();
+            },
+            child: Text('Start'),
+          ),
+          RaisedButton(
+            onPressed: (){
+              setState(() {
+                print('reset button pressed.');
+                if (_timer.isActive) {
+                  _timer.cancel();
+                  print('timer canceled.');
+                }
+                _start = 10;     
+              });
+            },
+            child: Text('Reset'),
+          ),
+        ],
       ),
     );
   }
